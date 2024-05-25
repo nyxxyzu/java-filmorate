@@ -19,6 +19,6 @@ public class DurationSerializer extends StdSerializer<Duration> {
 
 	@Override
 	public void serialize(Duration value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-		gen.writeNumber(value.getSeconds()/60);
+		gen.writeNumber(value.getSeconds() / 60);
 	}
 }
