@@ -1,12 +1,11 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.yandex.practicum.filmorate.validationgroups.AdvanceInfo;
+import ru.yandex.practicum.filmorate.validationgroups.BasicInfo;
 
 import java.time.LocalDate;
 
@@ -15,15 +14,14 @@ import java.time.LocalDate;
 public class User {
 
 	private Integer id;
-	@NotNull(message = "Введите e-mail")
-	@NotBlank(message = "E-mail не должен быть пуст")
-	@Email(message = "Неправильный формат e-mail.")
+	@NotEmpty(message = "E-mail не должен быть пуст", groups = BasicInfo.class)
+	@Email(message = "Неправильный формат e-mail.", groups = AdvanceInfo.class)
 	private String email;
-	@NotBlank(message = "Логин не должен быть пуст")
-	@NotNull(message = "Введите логин")
-	@Pattern(regexp = "^([A-z])*\\S*$", message = "Логин не должен содержать пробелов.")
+	@NotEmpty(message = "Логин не должен быть пуст", groups = BasicInfo.class)
+	@Pattern(regexp = "^([A-z])*\\S*$", message = "Логин не должен содержать пробелов.", groups = AdvanceInfo.class)
 	private String login;
 	private String name;
+	@Past(groups = AdvanceInfo.class)
 	@JsonFormat(pattern = "yyyy-MM-dd")
 	private LocalDate birthday;
 

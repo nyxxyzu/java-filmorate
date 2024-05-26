@@ -2,11 +2,13 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.validationgroups.AdvanceInfo;
+import ru.yandex.practicum.filmorate.validationgroups.BasicInfo;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,8 +23,7 @@ public class UserController {
 	private int getNextId() {
 		int currentMaxId = users.keySet()
 				.stream()
-				.mapToInt(id -> id)
-				.max()
+				.max(Integer::compareTo)
 				.orElse(0);
 		return ++currentMaxId;
 	}
@@ -33,14 +34,10 @@ public class UserController {
 	}
 
 	@PostMapping
-	public User create(@Valid @RequestBody User user) {
+	public User create(@Validated({BasicInfo.class, AdvanceInfo.class}) @RequestBody User user) {
 		user.setId(getNextId());
 		if (user.getName() == null) {
 			user.setName(user.getLogin());
-		}
-		if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now())) {
-			log.warn("Указана дата рождения в будущем.");
-			throw new ValidationException("Дата рождения не может быть в будущем.");
 		}
 		if (users.values()
 				.stream()
@@ -60,7 +57,7 @@ public class UserController {
 	}
 
 	@PutMapping
-	public User update(@Valid @RequestBody User newUser) {
+	public User update(@Validated(AdvanceInfo.class) @RequestBody User newUser) {
 		if (newUser.getId() == null) {
 			log.warn("Id не указан");
 			throw new ValidationException("Id должен быть указан");
@@ -72,7 +69,7 @@ public class UserController {
 					.anyMatch(getUser -> getUser.getEmail().equals(newUser.getEmail())) && !oldUser.getEmail().equals(newUser.getEmail())) {
 				log.warn("Указан использующийся e-mail");
 				throw new ValidationException("Такой e-mail уже используется");
-			} else {
+			} else if (newUser.getEmail() != null && !newUser.getLogin().isEmpty()) {
 				oldUser.setEmail(newUser.getEmail());
 				log.info("E-mail обновлён");
 			}
@@ -81,7 +78,7 @@ public class UserController {
 					.anyMatch(getUser -> getUser.getLogin().equals(newUser.getLogin())) && !oldUser.getLogin().equals(newUser.getLogin())) {
 				log.warn("Указан использующийся логин");
 				throw new ValidationException("Такой логин уже используется");
-			} else {
+			} else if (newUser.getLogin() != null && !newUser.getLogin().isEmpty()) {
 				oldUser.setLogin(newUser.getLogin());
 				log.info("Логин обновлён");
 			}
@@ -90,16 +87,12 @@ public class UserController {
 				log.info("Имя обновлено");
 			}
 			if (newUser.getBirthday() != null) {
-				if (newUser.getBirthday().isAfter(LocalDate.now())) {
-					throw new ValidationException("Дата рождения не может быть в будущем");
-				} else {
-					oldUser.setBirthday(newUser.getBirthday());
-					log.info("День рождения обновлён");
-				}
+				oldUser.setBirthday(newUser.getBirthday());
+				log.info("День рождения обновлён");
 			}
 			return oldUser;
 		}
-			log.warn("Указан несуществующий id");
-			throw new ValidationException("Пользователь с id = " + newUser.getId() + " не найден");
+		log.warn("Указан несуществующий id");
+		throw new ValidationException("Пользователь с id = " + newUser.getId() + " не найден");
 	}
 }
