@@ -19,6 +19,7 @@ import java.util.Map;
 public class FilmController {
 
 	private final Map<Integer, Film> films = new HashMap<>();
+	private static final LocalDate EARLIEST_DATE = LocalDate.parse("1895-12-25");
 
 	private int getNextId() {
 		int currentMaxId = films.keySet()
@@ -36,8 +37,7 @@ public class FilmController {
 	@PostMapping
 	public Film create(@Validated({BasicInfo.class, AdvanceInfo.class}) @RequestBody Film film) {
 		film.setId(getNextId());
-		LocalDate earliestDate = LocalDate.parse("1895-12-25");
-		if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(earliestDate)) {
+		if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(EARLIEST_DATE)) {
 			log.warn("Указана дата релиза фильма до 28.12.1895");
 			throw new ValidationException("Дата релиза не должна быть раньше 28 декабря 1895 года");
 		}
