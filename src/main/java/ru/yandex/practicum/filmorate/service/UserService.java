@@ -64,7 +64,7 @@ public class UserService {
 				.collect(Collectors.toSet());
 	}
 
-	public Set<User> getFriends (int userId) {
+	public Set<User> getFriends(int userId) {
 		User user = userStorage.getUserById(userId);
 		if (user == null) {
 			throw new NotFoundException("Пользователь не найден");
