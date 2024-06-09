@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
@@ -52,11 +51,23 @@ public class FilmService {
 	}
 
 	public Collection<Film> getMostLiked(int size) {
-		return filmStorage.getAllFilms()
-				.stream()
-				.sorted((f1, f2) -> f2.getLikedBy().size() - f1.getLikedBy().size())
-				.limit(size)
-				.collect(Collectors.toList());
+		return filmStorage.getMostLiked(size);
+	}
+
+	public Film create(Film film) {
+		return filmStorage.create(film);
+	}
+
+	public Film getFilmById(int id) {
+		return filmStorage.getFilmById(id);
+	}
+
+	public Film update(Film film) {
+		return filmStorage.update(film);
+	}
+
+	public Collection<Film> getAllFilms() {
+		return filmStorage.getAllFilms();
 	}
 
 
