@@ -8,6 +8,8 @@ import ru.yandex.practicum.filmorate.validationgroups.AdvanceInfo;
 import ru.yandex.practicum.filmorate.validationgroups.BasicInfo;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -24,5 +26,7 @@ public class User {
 	@Past(groups = AdvanceInfo.class)
 	@JsonFormat(pattern = "yyyy-MM-dd")
 	private LocalDate birthday;
+	private Set<Integer> friends = new HashSet<>();
+	private Set<Integer> likedFilms = new HashSet<>();
 
 }

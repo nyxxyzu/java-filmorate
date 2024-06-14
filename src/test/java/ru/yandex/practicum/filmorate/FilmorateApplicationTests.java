@@ -5,11 +5,10 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.controller.FilmController;
-import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.validationgroups.AdvanceInfo;
 import ru.yandex.practicum.filmorate.validationgroups.BasicInfo;
 
@@ -24,8 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class FilmorateApplicationTests {
 
 	Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-	FilmController filmController = new FilmController();
-	UserController userController = new UserController();
+	InMemoryFilmStorage filmStorage = new InMemoryFilmStorage();
 
 
 	@Test
@@ -54,7 +52,7 @@ class FilmorateApplicationTests {
 		Film film = new Film();
 		film.setReleaseDate(LocalDate.of(1883,5,5));
 		assertThrows(ValidationException.class, () -> {
-			filmController.create(film);
+			filmStorage.create(film);
 		});
 	}
 
