@@ -19,6 +19,20 @@ FROM users
 
 Возвращает список пользователей приложения.
 
+``` sql
+SELECT *
+FROM users WHERE id = ?
+```
+
+Возвращает пользователя по его id.
+
+``` sql
+INSERT INTO users(email, login, name, birthday)
+VALUES (?, ?, ?, ?) returning id
+```
+
+Добавляет в таблицу нового пользователя.
+
 
 
 
