@@ -1,7 +1,7 @@
+
 Схема базы данных приложения Filmorate
 
-![dbscheme](![image](https://github.com/nyxxyzu/java-filmorate/assets/157836043/99e87a8d-5388-4563-9ef8-ca3751244168)
-)
+![dbscheme1](https://github.com/nyxxyzu/java-filmorate/assets/157836043/b574c162-6e57-4b4a-882f-66b71156b8c9)
 
 База содержит 7 таблиц:
 1. Users. Таблица содержит информацию о пользователях.
