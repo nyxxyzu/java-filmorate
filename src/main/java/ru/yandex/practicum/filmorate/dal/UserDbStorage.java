@@ -58,6 +58,7 @@ public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
 		user.setId(id);
 		return user;
 	}
+
 	@Override
 	public User update(User newUser) {
 		try {
