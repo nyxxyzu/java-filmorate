@@ -2,52 +2,27 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.dal.FilmDbStorage;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
 
 @Service
 public class FilmService {
 
-	private final FilmStorage filmStorage;
-	private final UserStorage userStorage;
+	private final FilmDbStorage filmStorage;
 
 	@Autowired
-	public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+	public FilmService(FilmDbStorage filmStorage) {
 		this.filmStorage = filmStorage;
-		this.userStorage = userStorage;
 	}
 
-	public Film likeFilm(int filmId, int userId) {
-		Film film = filmStorage.getFilmById(filmId);
-		if (film == null) {
-			throw new NotFoundException("Фильм не найден");
-		}
-		User user = userStorage.getUserById(userId);
-		if (user == null) {
-			throw new NotFoundException("Пользователь не найден");
-		}
-		film.getLikedBy().add(userId);
-		user.getLikedFilms().add(filmId);
-		return film;
+	public void likeFilm(long filmId, long userId) {
+		filmStorage.likeFilm(filmId, userId);
 	}
 
-	public Film removeLike(int filmId, int userId) {
-		Film film = filmStorage.getFilmById(filmId);
-		if (film == null) {
-			throw new NotFoundException("Фильм не найден");
-		}
-		User user = userStorage.getUserById(userId);
-		if (user == null) {
-			throw new NotFoundException("Пользователь не найден");
-		}
-		film.getLikedBy().remove(userId);
-		user.getLikedFilms().remove(filmId);
-		return film;
+	public void removeLike(long filmId, long userId) {
+		filmStorage.removeLike(filmId, userId);
 	}
 
 	public Collection<Film> getMostLiked(int size) {
@@ -58,7 +33,7 @@ public class FilmService {
 		return filmStorage.create(film);
 	}
 
-	public Film getFilmById(int id) {
+	public Film getFilmById(long id) {
 		return filmStorage.getFilmById(id);
 	}
 

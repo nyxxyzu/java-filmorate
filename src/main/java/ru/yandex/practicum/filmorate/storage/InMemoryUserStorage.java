@@ -10,16 +10,16 @@ import java.util.*;
 @Component
 public class InMemoryUserStorage implements UserStorage {
 
-	private final Map<Integer, User> users = new HashMap<>();
+	private final Map<Long, User> users = new HashMap<>();
 	private final Set<String> emails = new HashSet<>();
 	private final Set<String> logins = new HashSet<>();
 
 
-	private int getNextId() {
-		int currentMaxId = users.keySet()
+	private long getNextId() {
+		long currentMaxId = users.keySet()
 				.stream()
-				.max(Integer::compareTo)
-				.orElse(0);
+				.max(Long::compareTo)
+				.orElse(0L);
 		return ++currentMaxId;
 	}
 
@@ -81,7 +81,7 @@ public class InMemoryUserStorage implements UserStorage {
 	}
 
 	@Override
-	public User getUserById(int userId) {
+	public User getUserById(long userId) {
 		return users.get(userId);
 	}
 }

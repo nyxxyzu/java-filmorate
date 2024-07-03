@@ -14,15 +14,15 @@ import java.util.stream.Collectors;
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
 
-	private final Map<Integer, Film> films = new HashMap<>();
+	private final Map<Long, Film> films = new HashMap<>();
 
 	private static final LocalDate EARLIEST_DATE = LocalDate.parse("1895-12-25");
 
-	private int getNextId() {
-		int currentMaxId = films.keySet()
+	private long getNextId() {
+		long currentMaxId = films.keySet()
 				.stream()
-				.max(Integer::compareTo)
-				.orElse(0);
+				.max(Long::compareTo)
+				.orElse(0L);
 		return ++currentMaxId;
 	}
 
@@ -66,7 +66,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 	}
 
 	@Override
-	public Film getFilmById(int filmId) {
+	public Film getFilmById(long filmId) {
 		if (films.get(filmId) == null) {
 			throw new NotFoundException("Такого фильма не существует.");
 		}

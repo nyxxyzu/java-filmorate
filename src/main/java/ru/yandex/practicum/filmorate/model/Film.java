@@ -15,14 +15,13 @@ import ru.yandex.practicum.filmorate.validationgroups.BasicInfo;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @NoArgsConstructor
 public class Film {
 
-	private Integer id;
+	private Long id;
 	@NotEmpty(groups = BasicInfo.class)
 	private String name;
 	@Size(max = 200, groups = AdvanceInfo.class)
@@ -33,6 +32,8 @@ public class Film {
 	@JsonDeserialize(using = DurationDeserializer.class)
 	@JsonSerialize(using = DurationSerializer.class)
 	private Duration duration;
-	private Set<Integer> likedBy = new HashSet<>();
+	private Set<Long> likedBy = new HashSet<>();
+	private Set<Genre> genres = new TreeSet<>(Comparator.comparing(Genre::getId));
+	private Mpa mpa;
 
 }

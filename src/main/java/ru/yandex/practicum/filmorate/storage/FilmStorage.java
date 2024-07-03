@@ -12,7 +12,7 @@ public interface FilmStorage {
 
 	Collection<Film> getAllFilms();
 
-	Film getFilmById(int filmId);
+	Film getFilmById(long filmId);
 
 	Collection<Film> getMostLiked(int size);
 }
