@@ -120,7 +120,8 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
 					newFilm.getDuration().toMinutes(),
 					newFilm.getMpa().getId(),
 					newFilm.getId()
-			);}
+			);
+		}
 		catch (InternalServerException e) {
 			throw new NotFoundException("Пользователь не найден");
 		}

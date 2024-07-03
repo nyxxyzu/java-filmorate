@@ -68,7 +68,8 @@ public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
 				newUser.getName(),
 				newUser.getBirthday(),
 				newUser.getId()
-		);}
+		);
+		}
 		catch (InternalServerException e) {
 			throw new NotFoundException("Пользователь не найден");
 		}
