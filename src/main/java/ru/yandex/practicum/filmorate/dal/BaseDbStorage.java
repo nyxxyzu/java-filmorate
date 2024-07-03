@@ -55,6 +55,7 @@ public class BaseDbStorage<T> {
 			throw new InternalServerException("Не удалось обновить данные");
 		}
 	}
+
 	protected void noPkInsert(String query, Object... params) {
 		GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
 		jdbc.update(connection -> {
