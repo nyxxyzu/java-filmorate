@@ -61,16 +61,15 @@ public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
 	@Override
 	public User update(User newUser) {
 		try {
-		update(
-				UPDATE_QUERY,
-				newUser.getLogin(),
-				newUser.getEmail(),
-				newUser.getName(),
-				newUser.getBirthday(),
-				newUser.getId()
-		);
-		}
-		catch (InternalServerException e) {
+			update(
+					UPDATE_QUERY,
+					newUser.getLogin(),
+					newUser.getEmail(),
+					newUser.getName(),
+					newUser.getBirthday(),
+					newUser.getId()
+			);
+		} catch (InternalServerException e) {
 			throw new NotFoundException("Пользователь не найден");
 		}
 		return newUser;

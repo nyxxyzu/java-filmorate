@@ -121,8 +121,7 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
 					newFilm.getMpa().getId(),
 					newFilm.getId()
 			);
-		}
-		catch (InternalServerException e) {
+		} catch (InternalServerException e) {
 			throw new NotFoundException("Пользователь не найден");
 		}
 		deleteGenre(newFilm.getId());
