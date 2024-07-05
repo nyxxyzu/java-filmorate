@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dal;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -9,15 +10,20 @@ import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class BaseDbStorage<T> {
 	protected final JdbcTemplate jdbc;
 	protected final ResultSetExtractor<List<T>> extractor;
-	private final Class<T> entityType;
 
-	protected T findOne(String query, Object... params) {
-		return jdbc.query(query, extractor, params).getFirst();
+	protected Optional<T> findOne(String query, Object... params) {
+		try {
+			List<T> result = jdbc.query(query, extractor, params);
+			return Optional.ofNullable(result.getFirst());
+		} catch (EmptyResultDataAccessException ignored) {
+			return Optional.empty();
+		}
 
 	}
 

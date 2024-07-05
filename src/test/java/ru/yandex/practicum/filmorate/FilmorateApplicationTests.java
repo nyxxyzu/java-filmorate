@@ -17,11 +17,13 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.validationgroups.AdvanceInfo;
 import ru.yandex.practicum.filmorate.validationgroups.BasicInfo;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.Set;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,13 +32,15 @@ import static org.junit.jupiter.api.Assertions.*;
 @JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@ContextConfiguration(classes = {UserDbStorage.class, UserExtractor.class, FilmDbStorage.class, FilmExtractor.class})
+@ContextConfiguration(classes = {UserDbStorage.class, UserExtractor.class, FilmDbStorage.class, FilmExtractor.class,
+FilmService.class})
 class FilmorateApplicationTests {
 
 	Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
 	private final UserDbStorage userStorage;
 	private final FilmDbStorage filmStorage;
+	private final FilmService filmService;
 
 	@Test
 	void testGetAllUsers() {
@@ -60,7 +64,12 @@ class FilmorateApplicationTests {
 		user3.setEmail("email1@mail.com");
 		user3.setBirthday(LocalDate.of(1997, 6, 5));
 		userStorage.create(user3);
-		assertThat(userStorage.getUserById(3)).hasFieldOrPropertyWithValue("id",3L);
+		Optional<User> userOptional = userStorage.getUserById(3);
+		assertThat(userOptional)
+				.isPresent()
+				.hasValueSatisfying(user ->
+						assertThat(user).hasFieldOrPropertyWithValue("id", 3L)
+				);
 
 	}
 
@@ -92,7 +101,12 @@ class FilmorateApplicationTests {
 		film3.setDuration(Duration.ofMinutes(150));
 		film3.setMpa(new Mpa());
 		filmStorage.create(film3);
-		assertThat(filmStorage.getFilmById(3)).hasFieldOrPropertyWithValue("id",3L);
+		Optional<Film> filmOptional = filmStorage.getFilmById(3);
+		assertThat(filmOptional)
+				.isPresent()
+				.hasValueSatisfying(film ->
+						assertThat(film).hasFieldOrPropertyWithValue("id", 3L)
+				);
 
 	}
 
@@ -123,7 +137,7 @@ class FilmorateApplicationTests {
 		Film film = new Film();
 		film.setReleaseDate(LocalDate.of(1883,5,5));
 		assertThrows(ValidationException.class, () -> {
-			filmStorage.create(film);
+			filmService.create(film);
 		});
 	}
 

@@ -23,12 +23,14 @@ CREATE TABLE IF NOT EXISTS films (
 CREATE TABLE IF NOT EXISTS friends (
             user_id INTEGER NOT NULL REFERENCES users(id),
             friend_id INTEGER NOT NULL REFERENCES users(id),
-            accepted BOOLEAN NOT NULL DEFAULT 0
+            accepted BOOLEAN NOT NULL DEFAULT 0,
+            PRIMARY KEY (user_id, friend_id)
           );
 
 CREATE TABLE IF NOT EXISTS likes (
             user_id INTEGER NOT NULL REFERENCES users(id),
-            film_id INTEGER NOT NULL REFERENCES films(id)
+            film_id INTEGER NOT NULL REFERENCES films(id),
+            PRIMARY KEY (user_id, film_id)
           );
 
 CREATE TABLE IF NOT EXISTS genres (
@@ -38,7 +40,8 @@ CREATE TABLE IF NOT EXISTS genres (
 
 CREATE TABLE IF NOT EXISTS film_genre (
             film_id INTEGER NOT NULL REFERENCES films(id),
-            genre_id INTEGER NOT NULL REFERENCES genres(id)
+            genre_id INTEGER NOT NULL REFERENCES genres(id),
+            PRIMARY KEY (film_id, genre_id)
           );
 
 

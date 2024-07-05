@@ -1,21 +1,18 @@
 package ru.yandex.practicum.filmorate.dal;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exception.InternalServerException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.sql.Date;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
-@Primary
 public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
 
 	private static final String GET_ALL_QUERY = "SELECT u.*, f.friend_id " +
@@ -37,7 +34,7 @@ public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
 
 	@Autowired
 	public UserDbStorage(JdbcTemplate jdbc, ResultSetExtractor<List<User>> extractor) {
-		super(jdbc, extractor, User.class);
+		super(jdbc, extractor);
 	}
 
 	@Override
@@ -61,33 +58,24 @@ public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
 
 	@Override
 	public User update(User newUser) {
-		try {
-			update(
-					UPDATE_QUERY,
-					newUser.getLogin(),
-					newUser.getEmail(),
-					newUser.getName(),
-					newUser.getBirthday(),
-					newUser.getId()
-			);
-		} catch (InternalServerException e) {
-			throw new NotFoundException("Пользователь не найден");
-		}
+		update(
+				UPDATE_QUERY,
+				newUser.getLogin(),
+				newUser.getEmail(),
+				newUser.getName(),
+				newUser.getBirthday(),
+				newUser.getId()
+		);
 		return newUser;
 	}
 
 	@Override
-	public User getUserById(long userId) {
+	public Optional<User> getUserById(long userId) {
 		return findOne(GET_BY_ID_QUERY, userId);
 	}
 
 	public void addFriend(long userId, long friendId) {
-		try {
-			getUserById(userId);
-			getUserById(friendId);
-		} catch (RuntimeException e) {
-			throw new NotFoundException("Пользователь не найден");
-		}
+
 		noPkInsert(
 				ADD_FRIEND_QUERY,
 				userId,
@@ -95,20 +83,12 @@ public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
 				userId,
 				friendId
 		);
-		if (getUserById(friendId).getFriends().contains(userId)) {
 			update(UPDATE_STATUS_QUERY, userId, friendId);
-			update(UPDATE_STATUS_QUERY, friendId, userId);
-		}
+
 
 	}
 
 	public void removeFriend(int userId, int friendId) {
-		try {
-			getUserById(userId);
-			getUserById(friendId);
-		} catch (RuntimeException e) {
-			throw new NotFoundException("Пользователь не найден");
-		}
 		delete(
 				REMOVE_FRIEND_QUERY,
 				userId,
@@ -122,11 +102,6 @@ public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
 	}
 
 	public Collection<User> getFriends(int userId) {
-		try {
-			getUserById(userId);
-		} catch (RuntimeException e) {
-			throw new NotFoundException("Пользователь не найден");
-		}
 		return findMany(GET_ALL_FRIENDS_QUERY, userId);
 	}
 

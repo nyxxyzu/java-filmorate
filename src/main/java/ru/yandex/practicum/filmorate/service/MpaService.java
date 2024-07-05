@@ -3,9 +3,11 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dal.MpaDbStorage;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.Collection;
+import java.util.Optional;
 
 @Service
 public class MpaService {
@@ -22,7 +24,11 @@ public class MpaService {
 		return mpaStorage.getAllMpas();
 	}
 
-	public Mpa getMpaById(long mpaId) {
-		return mpaStorage.getMpaById(mpaId);
+	public Optional<Mpa> getMpaById(long mpaId) {
+		try {
+			return mpaStorage.getMpaById(mpaId);
+		} catch (RuntimeException e) {
+			throw new NotFoundException("ID рейтинга не найден");
+		}
 	}
 }

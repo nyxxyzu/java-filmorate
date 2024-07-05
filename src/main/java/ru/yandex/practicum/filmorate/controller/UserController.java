@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.validationgroups.AdvanceInfo;
 import ru.yandex.practicum.filmorate.validationgroups.BasicInfo;
 
 import java.util.Collection;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -45,7 +46,7 @@ public class UserController {
 	}
 
 	@GetMapping("/users/{id}")
-	public User getUserById(@PathVariable("id") int id) {
+	public Optional<User> getUserById(@PathVariable("id") int id) {
 		log.info(userService.getUserById(id).toString());
 		return userService.getUserById(id);
 	}

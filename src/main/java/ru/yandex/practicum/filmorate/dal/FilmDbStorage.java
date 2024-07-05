@@ -1,23 +1,19 @@
 package ru.yandex.practicum.filmorate.dal;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exception.InternalServerException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.sql.Date;
-import java.time.LocalDate;
+import java.sql.PreparedStatement;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
-@Primary
 @Repository
 public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
 
@@ -34,11 +30,10 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
 	private static final String LIKE_FILM_QUERY = "INSERT INTO likes (user_id, film_id) SELECT ?, ? " +
 			"WHERE NOT EXISTS (SELECT * FROM likes WHERE user_id = ? AND film_id = ?)";
 	private static final String REMOVE_LIKE_QUERY = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
-	private static final LocalDate EARLIEST_DATE = LocalDate.parse("1895-12-25");
 
 	@Autowired
 	public FilmDbStorage(JdbcTemplate jdbc, ResultSetExtractor<List<Film>> extractor) {
-		super(jdbc, extractor, Film.class);
+		super(jdbc, extractor);
 	}
 
 	public void likeFilm(long filmId, long userId) {
@@ -59,44 +54,25 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
 		);
 	}
 
-	public Collection<Film> getMostLiked(int size) {
-		return getAllFilms().stream()
-				.sorted((f1, f2) -> f2.getLikedBy().size() - f1.getLikedBy().size())
-				.limit(size)
-				.toList();
-	}
-
 	@Override
 	public Film create(Film film) {
-		if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(EARLIEST_DATE)) {
-			throw new ValidationException("Дата релиза не должна быть раньше 28 декабря 1895 года");
-		}
-		try {
-			long id = insert(
-					ADD_FILM_QUERY,
-					film.getName(),
-					film.getDescription(),
-					Date.valueOf(film.getReleaseDate()),
-					film.getDuration().toMinutes(),
-					film.getMpa().getId()
-			);
-
-			film.setId(id);
-			for (Genre genre : film.getGenres()) {
-				addGenre(id, genre.getId());
-			}
-		} catch (RuntimeException e) {
-			throw new ValidationException("Ошибка валидации");
-		}
-		return film;
-	}
-
-	private void addGenre(long filmId, long genreId) {
-		noPkInsert(
-				ADD_GENRE_QUERY,
-				filmId,
-				genreId
+		long id = insert(
+				ADD_FILM_QUERY,
+				film.getName(),
+				film.getDescription(),
+				Date.valueOf(film.getReleaseDate()),
+				film.getDuration().toMinutes(),
+				film.getMpa().getId()
 		);
+
+		film.setId(id);
+		jdbc.batchUpdate(ADD_GENRE_QUERY, film.getGenres(), film.getGenres().size(),
+				(PreparedStatement ps, Genre genre) -> {
+			ps.setLong(1, film.getId());
+			ps.setLong(2, genre.getId());
+				}
+				);
+		return film;
 	}
 
 	private void deleteGenre(long filmId) {
@@ -106,28 +82,27 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
 		);
 	}
 
-	public Film getFilmById(long id) {
+	public Optional<Film> getFilmById(long id) {
 		return findOne(GET_FILM_BY_ID_QUERY, id);
 	}
 
 	public Film update(Film newFilm) {
-		try {
-			update(
-					UPDATE_FILM_QUERY,
-					newFilm.getName(),
-					newFilm.getDescription(),
-					Date.valueOf(newFilm.getReleaseDate()),
-					newFilm.getDuration().toMinutes(),
-					newFilm.getMpa().getId(),
-					newFilm.getId()
+		update(
+				UPDATE_FILM_QUERY,
+				newFilm.getName(),
+				newFilm.getDescription(),
+				Date.valueOf(newFilm.getReleaseDate()),
+				newFilm.getDuration().toMinutes(),
+				newFilm.getMpa().getId(),
+				newFilm.getId()
 			);
-		} catch (InternalServerException e) {
-			throw new NotFoundException("Пользователь не найден");
-		}
 		deleteGenre(newFilm.getId());
-		for (Genre genre : newFilm.getGenres()) {
-			addGenre(newFilm.getId(), genre.getId());
-		}
+		jdbc.batchUpdate(ADD_GENRE_QUERY, newFilm.getGenres(), 10,
+				(PreparedStatement ps, Genre genre) -> {
+					ps.setLong(1, newFilm.getId());
+					ps.setLong(2, genre.getId());
+				}
+		);
 		return newFilm;
 	}
 
