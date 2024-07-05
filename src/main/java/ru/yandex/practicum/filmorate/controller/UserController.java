@@ -10,7 +10,7 @@ import ru.yandex.practicum.filmorate.validationgroups.AdvanceInfo;
 import ru.yandex.practicum.filmorate.validationgroups.BasicInfo;
 
 import java.util.Collection;
-import java.util.Set;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -46,7 +46,7 @@ public class UserController {
 	}
 
 	@GetMapping("/users/{id}")
-	public User getUserById(@PathVariable("id") int id) {
+	public Optional<User> getUserById(@PathVariable("id") int id) {
 		log.info(userService.getUserById(id).toString());
 		return userService.getUserById(id);
 	}
@@ -62,13 +62,13 @@ public class UserController {
 	}
 
 	@GetMapping("/users/{id}/friends")
-	public Set<User> getFriends(@PathVariable("id") int id) {
+	public Collection<User> getFriends(@PathVariable("id") int id) {
 		log.info(userService.getFriends(id).toString());
 		return userService.getFriends(id);
 	}
 
 	@GetMapping("/users/{id}/friends/common/{otherId}")
-	public Set<User> showMutualFriends(@PathVariable("id") int id, @PathVariable("otherId") int otherId) {
+	public Collection<User> showMutualFriends(@PathVariable("id") int id, @PathVariable("otherId") int otherId) {
 		log.info(userService.showMutualFriends(id, otherId).toString());
 		return userService.showMutualFriends(id, otherId);
 	}

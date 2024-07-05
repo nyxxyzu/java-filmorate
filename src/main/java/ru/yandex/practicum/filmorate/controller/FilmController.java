@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.validationgroups.BasicInfo;
 
 
 import java.util.Collection;
+import java.util.Optional;
 
 @RestController
 @Slf4j
@@ -42,21 +43,19 @@ public class FilmController {
 	}
 
 	@GetMapping("/films/{id}")
-	public Film getFilmById(@PathVariable("id") int id) {
+	public Optional<Film> getFilmById(@PathVariable("id") int id) {
 		log.info(filmService.getFilmById(id).toString());
 		return filmService.getFilmById(id);
 	}
 
 	@PutMapping("/films/{id}/like/{userId}")
-	public Film likeFilm(@PathVariable("id") int filmId, @PathVariable("userId") int userId) {
-		log.info(filmService.likeFilm(filmId, userId).toString());
-		return filmService.likeFilm(filmId, userId);
+	public void likeFilm(@PathVariable("id") int filmId, @PathVariable("userId") int userId) {
+		filmService.likeFilm(filmId, userId);
 	}
 
 	@DeleteMapping("/films/{id}/like/{userId}")
-	public Film removeLike(@PathVariable("id") int filmId, @PathVariable("userId") int userId) {
-		log.info(filmService.removeLike(filmId, userId).toString());
-		return filmService.removeLike(filmId, userId);
+	public void removeLike(@PathVariable("id") int filmId, @PathVariable("userId") int userId) {
+		filmService.removeLike(filmId, userId);
 	}
 
 	@GetMapping("/films/popular")
